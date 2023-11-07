@@ -279,30 +279,6 @@ def make_larger_tree():
     return RB
 
 
-# ignoring color, just demonstrating rotation
-def rotations_():    
-    print('\n-- ROTATIONS  --')
-    RB = RedBlackTree()
-    RB.insert(5)
-    RB.insert(2)
-    RB.insert(10)
-    RB.insert(8)
-    RB.insert(12)
-    RB.insert(6)
-    RB.insert(9)
-    RB.print_tree()
-
-    print('\n\n-- After left rotation --')
-    five = RB.search(5)
-    RB.left_rotate(five)
-    RB.print_tree()
-
-    print('\n\n-- After right rotation --')
-    ten = RB.search(10)
-    RB.right_rotate(ten)
-    RB.print_tree()
-
-
 def insertions_():
     RB = RedBlackTree()
 
@@ -351,7 +327,6 @@ def deletions_():
 
 
 def main():
-    rotations_()
     insertions_()
     deletions_()
 

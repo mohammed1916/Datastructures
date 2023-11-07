@@ -1,19 +1,32 @@
-def partition(array, low, high):
-    pivot = array[high]
-    i = low - 1
-    for j in range(low, high):
-        if array[j] <= pivot:
-            i = i + 1
-            (array[i], array[j]) = (array[j], array[i])
-    (array[i + 1], array[high]) = (array[high], array[i + 1])
-    return i + 1
- 
-def quicksort(array, low, high):
+def quicksort(arr, low, high):
     if low < high:
-        pi = partition(array, low, high)
-        quicksort(array, low, pi - 1)
-        quicksort(array, pi + 1, high)
- 
+        # Partition the array into two subarrays and get the index of the pivot element.
+        pivot_index = partition(arr, low, high)
+
+        # Recursively sort the subarrays.
+        quicksort(arr, low, pivot_index)
+        quicksort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+    pivot = arr[low]  # Choose the first element as the pivot.
+    left = low + 1
+    right = high
+
+    done = False
+    while not done:
+        while left <= right and arr[left] <= pivot:
+            left += 1
+        while arr[right] >= pivot and right >= left:
+            right -= 1
+        if right < left:
+            done = True
+        else:
+            arr[left], arr[right] = arr[right], arr[left]
+
+    # Swap the pivot element with the right element.
+    arr[low], arr[right] = arr[right], arr[low]
+
+    return right
 
 
 
