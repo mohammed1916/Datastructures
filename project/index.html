@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Topological Sort Application</title>
+</head>
+
+<body>
+    <h1>Topological Sort Application</h1>
+
+    <script>
+        function topologicalSort(graph)
+        {
+            const visited = new Set();
+            const stack = [];
+
+            function dfs(node)
+            {
+                visited.add(node);
+
+                for (const neighbor of graph[node])
+                {
+                    if (!visited.has(neighbor))
+                    {
+                        dfs(neighbor);
+                    }
+                }
+
+                stack.unshift(node);
+            }
+
+            for (const node in graph)
+            {
+                if (!visited.has(node))
+                {
+                    dfs(node);
+                }
+            }
+
+            return stack;
+        }
+
+        // Example usage
+        const courses = {
+            'Math': ['Physics', 'Chemistry'],
+            'Physics': ['Mechanics'],
+            'Chemistry': ['Organic Chemistry'],
+            'Mechanics': [],
+            'Organic Chemistry': []
+        };
+
+        const sortedCourses = topologicalSort(courses);
+        console.log(sortedCourses);
+
+        // Generate dependency graph
+        const dependencyGraph = {};
+        for (const course in courses)
+        {
+            dependencyGraph[course] = courses[course];
+        }
+        console.log(dependencyGraph);
+    </script>
+</body>
+
+</html>
