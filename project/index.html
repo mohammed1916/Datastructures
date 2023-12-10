@@ -51,17 +51,12 @@
 
         <h2>Result</h2>
         <ul id="result-list">
-            <!-- Result items will be dynamically added here -->
-        </ul>
 
-        <h2>Course Data</h2>
-        <ul id="course-data-list">
-            <!-- Course data items will be dynamically added here -->
         </ul>
     </div>
 
     <div class="panel">
-        <h2>Example 2</h2>
+        <h2>Example</h2>
         <p>Number of Courses: 3</p>
         <p>Prerequisites: [[0, 1], [0, 2]]</p>
         <p>Expected Result: [1, 2, 0]</p>
@@ -71,6 +66,73 @@
             <!-- Result items will be dynamically added here for Example 2 -->
         </ul>
         <h2>Course Data</h2>
+        <p>Number of Courses: 10</p>
+        <div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Prerequisites</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>MA3160 Probability and Statistical Methods</td>
+                        <td>[5, 6]</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>RM3151 Research Methodology and IPR</td>
+                        <td>[9]</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>IF3151 Advanced Data Structures and Algorithms</td>
+                        <td>[]</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>DS3101 Fundamentals of Data Science</td>
+                        <td>[]</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>DS3102 Artificial Intelligence</td>
+                        <td>[3, 4]</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>IF3152 Advanced Database Management Systems</td>
+                        <td>[5]</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>CS3201 Machine Learning</td>
+                        <td>[10]</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>CS3202 Natural Language Processing</td>
+                        <td>[5, 6]</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>SE3101 Software Engineering</td>
+                        <td>[6]</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>SE3102 Software Project Management</td>
+                        <td>[9]</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <!-- <p>Prerequisites: [[1, 5], [1, 6], [2, 9], [3, 5], [3, 6], [5, 3], [5, 4], [6, 5], [9, 6], [10, 9]]</p> -->
         <ul id="course-data-list-example2">
             <!-- Course data items will be dynamically added here for Example 2 -->
         </ul>
@@ -144,7 +206,38 @@
             const courseDataListExample2 = document.getElementById('course-data-list-example2');
             courseDataListExample2.innerHTML = '';
 
-            // Add your course data here for Example 2
+            // courseDataExample2 is an array of objects with the following properties:
+            const courseData = [
+                { id: 1, name: 'MA3160 Probability and Statistical Methods', prerequisites: [5, 6] },
+                { id: 2, name: 'RM3151 Research Methodology and IPR', prerequisites: [9] },
+                { id: 3, name: 'IF3151 Advanced Data Structures and Algorithms', prerequisites: [] },
+                { id: 4, name: 'DS3101 Fundamentals of Data Science', prerequisites: [] },
+                { id: 5, name: 'DS3102 Artificial Intelligence', prerequisites: [3, 4] },
+                { id: 6, name: 'IF3152 Advanced Database Management Systems', prerequisites: [5] },
+                { id: 7, name: 'CS3201 Machine Learning', prerequisites: [10] },
+                { id: 8, name: 'CS3202 Natural Language Processing', prerequisites: [5, 6] },
+                { id: 9, name: 'SE3101 Software Engineering', prerequisites: [6] },
+                { id: 10, name: 'SE3102 Software Project Management', prerequisites: [9] },
+            ];
+
+            const numCourses = courseData.length;
+            const prerequisitesArray = courseData.reduce((result, course) =>
+            {
+                const courseId = course.id;
+                const prerequisites = course.prerequisites.map(pre => [courseId, pre]);
+                return result.concat(prerequisites);
+            }, []);
+
+            // Display prerequisitesArray in li elements
+            // const prerequisitesList = document.getElementById("prerequisites-list");
+            prerequisitesArray.forEach(prerequisite =>
+            {
+                const li = document.createElement("li");
+                li.textContent = JSON.stringify(prerequisite);
+                courseDataListExample2.appendChild(li);
+            });
+            console.log("Number of Courses:", numCourses);
+            console.log("Prerequisites:", prerequisitesArray);
 
         }
 
