@@ -4,132 +4,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topological Sorting Visualization</title>
+    <title>Course Scheduling</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
 
-        .node {
-            fill: #2196F3;
-            stroke: #fff;
-            stroke-width: 2px;
+        h1 {
+            color: #333;
         }
 
-        .link {
-            stroke: #ccc;
-            stroke-width: 2px;
+        ul {
+            list-style-type: none;
+            padding: 0;
         }
 
-        .label {
-            font-size: 10px;
-            pointer-events: none;
+        li {
+            margin-bottom: 10px;
+        }
+
+        pre {
+            font-family: monospace;
+            white-space: pre-wrap;
         }
     </style>
 </head>
 
 <body>
 
-    <svg width="800" height="400"></svg>
+    <h1>Course Scheduling</h1>
 
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script>
-        const courses = {
-            'Math': ['Physics', 'Chemistry', 'Statistics'],
-            'Physics': ['Mechanics', 'Electromagnetism'],
-            'Chemistry': ['Organic Chemistry', 'Inorganic Chemistry'],
-            'Mechanics': ['Classical Mechanics', 'Fluid Mechanics'],
-            'Organic Chemistry': ['Biochemistry'],
-            'Inorganic Chemistry': [],
-            'Statistics': ['Probability'],
-            'Electromagnetism': ['Optics', 'Quantum Mechanics'],
-            'Classical Mechanics': [],
-            'Fluid Mechanics': ['Thermodynamics'],
-            'Biochemistry': ['Molecular Biology'],
-            'Probability': ['Statistics'],
-            'Optics': ['Modern Physics'],
-            'Quantum Mechanics': ['Nuclear Physics'],
-            'Thermodynamics': [],
-            'Molecular Biology': [],
-            'Modern Physics': [],
-            'Nuclear Physics': []
-        };
+    <p>This is a simple example of course scheduling using topological sort.</p>
 
-        const svg = d3.select("svg"),
-            width = +svg.attr("width"),
-            height = +svg.attr("height");
+    <h2>Course List</h2>
+    <ul id="course-list">
+        <!-- Course items will be dynamically added here -->
+    </ul>
 
-        const graph = {
-            nodes: Object.keys(courses),
-            links: []
-        };
+    <h2>Topological Sort Steps</h2>
+    <pre id="topological-sort-steps"></pre>
 
-        Object.keys(courses).forEach(source =>
+    <script defer>
+        // Example data representing courses and their dependencies
+        const courses = [
+            { id: 1, name: 'MA3160 Probability and Statistical Methods', prerequisites: [] },
+            { id: 2, name: 'RM3151 Research Methodology and IPR', prerequisites: [] },
+            { id: 3, name: 'IF3151 Advanced Data Structures and Algorithms', prerequisites: [1] },
+            { id: 4, name: 'DS3101 Fundamentals of Data Science', prerequisites: [1] },
+            { id: 5, name: 'DS3102 Artificial Intelligence', prerequisites: [3, 4] },
+            { id: 6, name: 'IF3152 Advanced Database Management Systems', prerequisites: [5] },
+            { id: 7, name: 'CS3201 Machine Learning', prerequisites: [5, 6] },
+            { id: 8, name: 'CS3202 Natural Language Processing', prerequisites: [5, 6] },
+            { id: 9, name: 'SE3101 Software Engineering', prerequisites: [6] },
+            { id: 10, name: 'SE3102 Software Project Management', prerequisites: [9] },
+        ];
+
+        // Function to perform topological sort
+        function topologicalSort(graph)
         {
-            courses[source].forEach(target =>
+            const visited = new Set();
+            const stack = [];
+            const steps = [];
+
+            function visit(node)
             {
-                graph.links.push({ source, target });
-            });
-        });
+                if (!visited.has(node))
+                {
+                    visited.add(node);
+                    const course = graph.find(course => course.id === node);
+                    if (course)
+                    {
+                        // Visit all neighbors
+                        course.prerequisites.forEach(neighbor =>
+                        {
+                            visit(neighbor);
+                        });
+                        // After visiting all neighbors, add the current node to the stack
+                        stack.push(node);
+                        // Record the step
+                        steps.push([...stack]);
+                    }
+                }
+            }
 
-        const simulation = d3.forceSimulation(graph.nodes.map(d => ({ id: d })))
-            .force("link", d3.forceLink(graph.links).id(d => d.id))
-            .force("charge", d3.forceManyBody().strength(-400))
-            .force("center", d3.forceCenter(width / 2, height / 2))
-            .on("end", () =>
+            // Visit all nodes in the graph
+            graph.forEach(course =>
             {
-                // After simulation ends, update node positions
-                node.attr("transform", d => `translate(${d.x},${d.y})`);
+                visit(course.id);
             });
 
-        const link = svg.append("g")
-            .attr("class", "links")
-            .selectAll("line")
-            .data(graph.links)
-            .enter().append("line")
-            .attr("class", "link");
+            // The stack now contains the topologically sorted order
+            // Reverse the stack to get the correct order
+            const sortedOrder = stack.reverse().map(courseId => graph.find(course => course.id === courseId));
 
-        const node = svg.append("g")
-            .attr("class", "nodes")
-            .selectAll("g")
-            .data(graph.nodes)
-            .enter().append("g")
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
-
-        node.append("circle")
-            .attr("class", "node")
-            .attr("r", 10);
-
-        node.append("text")
-            .attr("class", "label")
-            .attr("dx", 12)
-            .attr("dy", ".35em")
-            .text(d => d);
-
-        function dragstarted(event, d)
-        {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
+            return { sortedOrder, steps };
         }
 
-        function dragged(event, d)
+        // Display the sorted courses and steps on the webpage
+        function displayResults(sortedCourses, sortSteps)
         {
-            d.fx = event.x;
-            d.fy = event.y;
+            const courseList = document.getElementById('course-list');
+            const topologicalSortSteps = document.getElementById('topological-sort-steps');
+
+            sortedCourses.forEach(course =>
+            {
+                const listItem = document.createElement('li');
+                listItem.textContent = course.name;
+                courseList.appendChild(listItem);
+            });
+
+            sortSteps.forEach((step, index) =>
+            {
+                topologicalSortSteps.innerHTML += `<b>Step ${index + 1}:</b> ${step.join(' -> ')}\n`;
+            });
         }
 
-        function dragended(event, d)
-        {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-        }
+        // Perform topological sort on the courses
+        const { sortedOrder, steps } = topologicalSort(courses);
+
+        // Display the results on the webpage
+        displayResults(sortedOrder, steps);
     </script>
+
 </body>
 
 </html>
