@@ -1,64 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Topological Sort Application</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topological Sorting Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .node {
+            fill: #2196F3;
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+
+        .link {
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Topological Sort Application</h1>
 
+    <svg width="800" height="400"></svg>
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
     <script>
-        function topologicalSort(graph)
-        {
-            const visited = new Set();
-            const stack = [];
-
-            function dfs(node)
-            {
-                visited.add(node);
-
-                for (const neighbor of graph[node])
-                {
-                    if (!visited.has(neighbor))
-                    {
-                        dfs(neighbor);
-                    }
-                }
-
-                stack.unshift(node);
-            }
-
-            for (const node in graph)
-            {
-                if (!visited.has(node))
-                {
-                    dfs(node);
-                }
-            }
-
-            return stack;
-        }
-
-        // Example usage
         const courses = {
-            'Math': ['Physics', 'Chemistry'],
-            'Physics': ['Mechanics'],
-            'Chemistry': ['Organic Chemistry'],
-            'Mechanics': [],
-            'Organic Chemistry': []
+            'Math': ['Physics', 'Chemistry', 'Statistics'],
+            'Physics': ['Mechanics', 'Electromagnetism'],
+            'Chemistry': ['Organic Chemistry', 'Inorganic Chemistry'],
+            'Mechanics': ['Classical Mechanics', 'Fluid Mechanics'],
+            'Organic Chemistry': ['Biochemistry'],
+            'Inorganic Chemistry': [], // Add this line to resolve the error
+            'Statistics': ['Probability'],
+            'Electromagnetism': ['Optics', 'Quantum Mechanics'],
+            'Classical Mechanics': [],
+            'Fluid Mechanics': ['Thermodynamics'],
+            'Biochemistry': ['Molecular Biology'],
+            'Probability': ['Statistics'],
+            'Optics': ['Modern Physics'],
+            'Quantum Mechanics': ['Nuclear Physics'],
+            'Thermodynamics': [],
+            'Molecular Biology': [],
+            'Modern Physics': [],
+            'Nuclear Physics': []
         };
 
-        const sortedCourses = topologicalSort(courses);
-        console.log(sortedCourses);
 
-        // Generate dependency graph
-        const dependencyGraph = {};
-        for (const course in courses)
+        const svg = d3.select("svg"),
+            width = +svg.attr("width"),
+            height = +svg.attr("height");
+
+        const graph = {
+            nodes: Object.keys(courses),
+            links: []
+        };
+
+        Object.keys(courses).forEach(source =>
         {
-            dependencyGraph[course] = courses[course];
+            courses[source].forEach(target =>
+            {
+                graph.links.push({ source, target });
+            });
+        });
+
+        const simulation = d3.forceSimulation(graph.nodes.map(d => ({ id: d })))
+            .force("link", d3.forceLink(graph.links).id(d => d.id))
+            .force("charge", d3.forceManyBody().strength(-400))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        const link = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter().append("line")
+            .attr("class", "link");
+
+        const node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(graph.nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 10)
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        node.append("title")
+            .text(d => d.id);
+
+        simulation.on("tick", () =>
+        {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+        });
+
+        function dragstarted(event, d)
+        {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
         }
-        console.log(dependencyGraph);
+
+        function dragged(event, d)
+        {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d)
+        {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
     </script>
 </body>
 
