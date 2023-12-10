@@ -9,6 +9,12 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .panel {
+            flex: 1;
         }
 
         h1 {
@@ -23,108 +29,139 @@
         li {
             margin-bottom: 10px;
         }
-
-        pre {
-            font-family: monospace;
-            white-space: pre-wrap;
-        }
     </style>
 </head>
 
 <body>
 
-    <h1>Course Scheduling</h1>
+    <div class="panel">
+        <h1>Course Scheduling</h1>
 
-    <p>This is a simple example of course scheduling using topological sort.</p>
+        <div>
+            <label for="numCourses">Number of Courses:</label>
+            <input type="number" id="numCourses" min="1" required>
+        </div>
 
-    <h2>Course List</h2>
-    <ul id="course-list">
-        <!-- Course items will be dynamically added here -->
-    </ul>
+        <div>
+            <label for="prerequisites">Prerequisites (comma-separated):</label>
+            <input type="text" id="prerequisites" placeholder="e.g., 1,0 2,0 3,1 3,2" required>
+        </div>
 
-    <h2>Topological Sort Steps</h2>
-    <pre id="topological-sort-steps"></pre>
+        <button onclick="runSolution()">Run Solution</button>
+
+        <h2>Result</h2>
+        <ul id="result-list">
+            <!-- Result items will be dynamically added here -->
+        </ul>
+
+        <h2>Course Data</h2>
+        <ul id="course-data-list">
+            <!-- Course data items will be dynamically added here -->
+        </ul>
+    </div>
+
+    <div class="panel">
+        <h2>Example 2</h2>
+        <p>Number of Courses: 3</p>
+        <p>Prerequisites: [[0, 1], [0, 2]]</p>
+        <p>Expected Result: [1, 2, 0]</p>
+        <button onclick="runExample2()">Run Example 2</button>
+        <h2>Result</h2>
+        <ul id="result-list-example2">
+            <!-- Result items will be dynamically added here for Example 2 -->
+        </ul>
+        <h2>Course Data</h2>
+        <ul id="course-data-list-example2">
+            <!-- Course data items will be dynamically added here for Example 2 -->
+        </ul>
+    </div>
+
+    <script defer src="topologicalsort.js"></script>
 
     <script defer>
-        // Example data representing courses and their dependencies
-        const courses = [
-            { id: 1, name: 'MA3160 Probability and Statistical Methods', prerequisites: [] },
-            { id: 2, name: 'RM3151 Research Methodology and IPR', prerequisites: [] },
-            { id: 3, name: 'IF3151 Advanced Data Structures and Algorithms', prerequisites: [1] },
-            { id: 4, name: 'DS3101 Fundamentals of Data Science', prerequisites: [1] },
-            { id: 5, name: 'DS3102 Artificial Intelligence', prerequisites: [3, 4] },
-            { id: 6, name: 'IF3152 Advanced Database Management Systems', prerequisites: [5] },
-            { id: 7, name: 'CS3201 Machine Learning', prerequisites: [5, 6] },
-            { id: 8, name: 'CS3202 Natural Language Processing', prerequisites: [5, 6] },
-            { id: 9, name: 'SE3101 Software Engineering', prerequisites: [6] },
-            { id: 10, name: 'SE3102 Software Project Management', prerequisites: [9] },
-        ];
-
-        // Function to perform topological sort
-        function topologicalSort(graph)
+        function runSolution()
         {
-            const visited = new Set();
-            const stack = [];
-            const steps = [];
+            const numCoursesInput = document.getElementById('numCourses');
+            const prerequisitesInput = document.getElementById('prerequisites');
 
-            function visit(node)
+            const numCourses = parseInt(numCoursesInput.value, 10);
+            const prerequisites = parsePrerequisites(prerequisitesInput.value);
+
+            const topologicalSort = new TopologicalSort();
+            const result = topologicalSort.findOrder(numCourses, prerequisites);
+
+            const resultList = document.getElementById('result-list');
+            resultList.innerHTML = '';
+
+            if (result.length > 0)
             {
-                if (!visited.has(node))
+                result.forEach(course =>
                 {
-                    visited.add(node);
-                    const course = graph.find(course => course.id === node);
-                    if (course)
-                    {
-                        // Visit all neighbors
-                        course.prerequisites.forEach(neighbor =>
-                        {
-                            visit(neighbor);
-                        });
-                        // After visiting all neighbors, add the current node to the stack
-                        stack.push(node);
-                        // Record the step
-                        steps.push([...stack]);
-                    }
-                }
-            }
-
-            // Visit all nodes in the graph
-            graph.forEach(course =>
-            {
-                visit(course.id);
-            });
-
-            // The stack now contains the topologically sorted order
-            // Reverse the stack to get the correct order
-            const sortedOrder = stack.reverse().map(courseId => graph.find(course => course.id === courseId));
-
-            return { sortedOrder, steps };
-        }
-
-        // Display the sorted courses and steps on the webpage
-        function displayResults(sortedCourses, sortSteps)
-        {
-            const courseList = document.getElementById('course-list');
-            const topologicalSortSteps = document.getElementById('topological-sort-steps');
-
-            sortedCourses.forEach(course =>
+                    const listItem = document.createElement('li');
+                    listItem.textContent = course;
+                    resultList.appendChild(listItem);
+                });
+            } else
             {
                 const listItem = document.createElement('li');
-                listItem.textContent = course.name;
-                courseList.appendChild(listItem);
-            });
+                listItem.textContent = 'Impossible to finish all courses.';
+                resultList.appendChild(listItem);
+            }
 
-            sortSteps.forEach((step, index) =>
-            {
-                topologicalSortSteps.innerHTML += `<b>Step ${index + 1}:</b> ${step.join(' -> ')}\n`;
-            });
+            const courseDataList = document.getElementById('course-data-list');
+            courseDataList.innerHTML = '';
+
+            // Add your course data here
+
         }
 
-        // Perform topological sort on the courses
-        const { sortedOrder, steps } = topologicalSort(courses);
+        function runExample2()
+        {
+            const numCoursesExample2 = 3;
+            const prerequisitesExample2 = [[0, 1], [0, 2]];
 
-        // Display the results on the webpage
-        displayResults(sortedOrder, steps);
+            const topologicalSort = new TopologicalSort();
+            const resultExample2 = topologicalSort.findOrder(numCoursesExample2, prerequisitesExample2);
+
+            const resultListExample2 = document.getElementById('result-list-example2');
+            resultListExample2.innerHTML = '';
+
+            if (resultExample2.length > 0)
+            {
+                resultExample2.forEach(course =>
+                {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = course;
+                    resultListExample2.appendChild(listItem);
+                });
+            } else
+            {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'Impossible to finish all courses.';
+                resultListExample2.appendChild(listItem);
+            }
+
+            const courseDataListExample2 = document.getElementById('course-data-list-example2');
+            courseDataListExample2.innerHTML = '';
+
+            // Add your course data here for Example 2
+
+        }
+
+        function parsePrerequisites(input)
+        {
+            try
+            {
+                console.log('Prerequisites:', JSON.parse(input));
+                return JSON.parse(input);
+            } catch (error)
+            {
+                console.error('Error parsing prerequisites:', error);
+                return [];
+            }
+        }
+
+
     </script>
 
 </body>
