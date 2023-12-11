@@ -48,7 +48,7 @@ def delete(root,val):
         root.left = delete(root.left, val)
     elif root.val < val:
         root.right = delete(root.right, val)
-    else:
+    elif root.val == val:
         if root.right == None:
             return root.left
         if root.left == None:

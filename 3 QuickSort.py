@@ -9,24 +9,24 @@ def quicksort(arr, low, high):
 
 def partition(arr, low, high):
     pivot = arr[low]  # Choose the first element as the pivot.
-    left = low + 1
-    right = high
+    l = low + 1
+    r = high
 
     done = False
     while not done:
-        while left <= right and arr[left] <= pivot:
-            left += 1
-        while arr[right] >= pivot and right >= left:
-            right -= 1
-        if right < left:
+        while l <= r and arr[l] <= pivot:
+            l += 1
+        while arr[r] >= pivot and r >= l:
+            r -= 1
+        if r < l:
             done = True
         else:
-            arr[left], arr[right] = arr[right], arr[left]
+            arr[l], arr[r] = arr[r], arr[l]
 
     # Swap the pivot element with the right element.
-    arr[low], arr[right] = arr[right], arr[low]
+    arr[low], arr[r] = arr[r], arr[low]
 
-    return right
+    return r
 
 
 
