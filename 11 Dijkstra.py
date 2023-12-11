@@ -64,7 +64,7 @@ class Graph():
 
 
 if __name__ == "__main__":
-	g = Graph(9)
+	g = Graph(5)
 	g.graph = [[0,6,4,0,0],
          [6,0,0,1,7],
          [4,0,0,8,0],
